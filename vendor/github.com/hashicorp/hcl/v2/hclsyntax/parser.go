@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"unicode/utf8"
 
-	"github.com/apparentlymart/go-textseg/textseg"
+	"github.com/apparentlymart/go-textseg/v12/textseg"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 )
@@ -760,7 +760,7 @@ Traversal:
 					Each:   travExpr,
 					Item:   itemExpr,
 
-					SrcRange:    hcl.RangeBetween(dot.Range, lastRange),
+					SrcRange:    hcl.RangeBetween(from.Range(), lastRange),
 					MarkerRange: hcl.RangeBetween(dot.Range, marker.Range),
 				}
 
@@ -819,7 +819,7 @@ Traversal:
 					Each:   travExpr,
 					Item:   itemExpr,
 
-					SrcRange:    hcl.RangeBetween(open.Range, travExpr.Range()),
+					SrcRange:    hcl.RangeBetween(from.Range(), travExpr.Range()),
 					MarkerRange: hcl.RangeBetween(open.Range, close.Range),
 				}
 
@@ -867,8 +867,9 @@ Traversal:
 						Collection: ret,
 						Key:        keyExpr,
 
-						SrcRange:  rng,
-						OpenRange: open.Range,
+						SrcRange:     hcl.RangeBetween(from.Range(), rng),
+						OpenRange:    open.Range,
+						BracketRange: rng,
 					}
 				}
 			}
@@ -899,7 +900,7 @@ func makeRelativeTraversal(expr Expression, next hcl.Traverser, rng hcl.Range) E
 		return &RelativeTraversalExpr{
 			Source:    expr,
 			Traversal: hcl.Traversal{next},
-			SrcRange:  rng,
+			SrcRange:  hcl.RangeBetween(expr.Range(), rng),
 		}
 	}
 }
